@@ -1,6 +1,7 @@
 #Needs TALSH_GPU, TALSH_GPU_ARCH, TALSH_BLAS, MPI_INCLUDE_PATH, TALSH_FINE_TIMING (Optional), nvcc in system PATH
 #No support for compiler wrappers, GCC >= 5.3 needed
 
+
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 project (TALSH C CXX Fortran)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -16,7 +17,7 @@ find_package(MPI REQUIRED)
 #fpic flags
 # DF := -WF, when using IBM compilers
 
-set(TALSH_GPU_ARCH 60)
+#set(TALSH_GPU_ARCH 60)
 
 if (TALSH_GPU)
 	set(TALSH_GPU_DEFS "CUDA_ARCH=${TALSH_GPU_ARCH}0")
@@ -35,6 +36,8 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -mp -Mcache_align -Mstandard -Mallocatable=03)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "XL")
   set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -qsmp=omp)
+elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "CRAY")
+  set(TALSH_Fortran_FLAGS ${TALSH_FORTRAN_FLAGS})
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
@@ -65,8 +68,7 @@ set (TALSH_FORTRAN_SOURCES
 
 set (TALSH_CXX_SOURCES
 	mem_manager.cpp
-	talshc.cpp
-	talsh_task.cpp)
+	talshc.cpp)
 
 if(TALSH_GPU)
 	set(TALSH_CUDA_SOURCES tensor_algebra_gpu_nvidia.cu)
@@ -75,8 +77,9 @@ else()
 	set(TALSH_CXX_SOURCES ${TALSH_CXX_SOURCES} tensor_algebra_gpu_nvidia.cpp)
 endif()
 
-set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES 
-						   -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
+#set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES 
+#						   -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
+set(TALSH_CUDA_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 
 if(TALSH_FINE_TIMING)
   set(TALSH_CUDA_FLAGS ${TALSH_CUDA_FLAGS} -DGPU_FINE_TIMING)
