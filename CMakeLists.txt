@@ -36,14 +36,14 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fpic -mp -Mcache_align -Mstandard -Mallocatable=03)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "XL")
   set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -qpic=large -qsmp=omp)
-elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "CRAY")
-  set(TALSH_Fortran_FLAGS ${TALSH_FORTRAN_FLAGS} -hpic -s integer64)
+elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
+  set(TALSH_Fortran_FLAGS ${TALSH_FORTRAN_FLAGS} -hpic)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
   set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -silent -w -Mnovect)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "CRAY")
-  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -s integer64)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
+  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -h std=c++11)
 endif()
 
 if (NOT TALSH_BLAS)
@@ -74,7 +74,8 @@ set (TALSH_FORTRAN_SOURCES
 
 set (TALSH_CXX_SOURCES
 	mem_manager.cpp
-	talshc.cpp)
+	talshc.cpp
+	talsh_task.cpp)
 
 if(TALSH_GPU)
 	set(TALSH_CUDA_SOURCES tensor_algebra_gpu_nvidia.cu)
@@ -84,8 +85,15 @@ else()
 endif()
 
 #set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES 
-#						   -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
-set(TALSH_CUDA_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
+#                                               -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
+	set(TALSH_CUDA_FLAGS  ${TALSH_CUDA_FLAGS} -O3 -lineinfo -w -D_FORCE_INLINES
+		-Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
+else()
+set(TALSH_CUDA_FLAGS  ${TALSH_CUDA_FLAGS} -O3 -lineinfo -w -D_FORCE_INLINES
+                -std=c++11 -Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
+endif()
 
 if(TALSH_FINE_TIMING)
   set(TALSH_CUDA_FLAGS ${TALSH_CUDA_FLAGS} -DGPU_FINE_TIMING)
