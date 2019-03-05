@@ -28,8 +28,6 @@ endif()
 set(TALSH_CXX_FLAGS ${CMAKE_CXX_FLAGS} -O3)
 set(TALSH_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} -O3)
 
-#set(TALSH_CXX_FLAGS -O3)
-
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fpic -fpp -vec-threshold4 -qopenmp -mkl=parallel)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
