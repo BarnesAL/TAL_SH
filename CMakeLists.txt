@@ -28,6 +28,8 @@ endif()
 set(TALSH_CXX_FLAGS ${CMAKE_CXX_FLAGS} -O3)
 set(TALSH_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} -O3)
 
+#set(TALSH_CXX_FLAGS -O3)
+
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fpic -fpp -vec-threshold4 -qopenmp -mkl=parallel)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
@@ -44,6 +46,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
   set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -silent -w -Mnovect)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
   set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -h std=c++11)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -std=gnu11)
 endif()
 
 if (NOT TALSH_BLAS)
@@ -88,10 +92,10 @@ endif()
 #                                               -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
-	set(TALSH_CUDA_FLAGS  ${TALSH_CUDA_FLAGS} -O3 -lineinfo -w -D_FORCE_INLINES
+	set(TALSH_CUDA_FLAGS  -O3 -lineinfo -w -D_FORCE_INLINES
 		-Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 else()
-set(TALSH_CUDA_FLAGS  ${TALSH_CUDA_FLAGS} -O3 -lineinfo -w -D_FORCE_INLINES
+        set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES
                 -std=c++11 -Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 endif()
 
