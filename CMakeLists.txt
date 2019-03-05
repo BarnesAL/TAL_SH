@@ -96,6 +96,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
 		-Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 else()
         set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES
+                -std=c++11 -Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 endif()
 
 message( STATUS "CUDA flags = " ${TALSH_CUDA_FLAGS} )
