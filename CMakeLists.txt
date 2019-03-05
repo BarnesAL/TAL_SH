@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 project (TALSH C CXX Fortran)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(FindCUDA)
 find_package(MPI REQUIRED)
@@ -25,7 +25,9 @@ else()
 	set(TALSH_GPU_DEFS NO_GPU)
 endif()
 
-set(TALSH_CXX_FLAGS ${CMAKE_CXX_FLAGS} -O3)
+#set(TALSH_CXX_FLAGS ${CMAKE_CXX_FLAGS} -O3)
+set(TALSH_CXX_FLAGS -O3)
+message( STATUS "CXX flags = " ${TALSH_CXX_FLAGS} )
 set(TALSH_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} -O3)
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
@@ -41,7 +43,7 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
-  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -silent -w -Mnovect)
+  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -silent -w -Mnovect -std=c++11)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
   set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -h std=c++11)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -94,8 +96,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
 		-Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 else()
         set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES
-                -std=c++11 -Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
 endif()
+
+message( STATUS "CUDA flags = " ${TALSH_CUDA_FLAGS} )
 
 if(TALSH_FINE_TIMING)
   set(TALSH_CUDA_FLAGS ${TALSH_CUDA_FLAGS} -DGPU_FINE_TIMING)

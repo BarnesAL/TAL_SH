@@ -9,13 +9,13 @@ export TOOLKIT ?= GNU
 #Optimization: [DEV|OPT|PRF]:
 export BUILD_TYPE ?= OPT
 #MPI Library: [NONE|MPICH|OPENMPI]:
-export MPILIB ?= NONE
+export MPILIB ?= OPENMPI
 #BLAS: [ATLAS|MKL|ACML|ESSL|NONE]:
-export BLASLIB ?= ATLAS
+export BLASLIB ?= NONE
 #Nvidia GPU via CUDA: [CUDA|NOCUDA]:
-export GPU_CUDA ?= NOCUDA
+export GPU_CUDA ?= CUDA
 #Nvidia GPU architecture (two digits):
-export GPU_SM_ARCH ?= 35
+export GPU_SM_ARCH ?= 70
 #Operating system: [LINUX|NO_LINUX]:
 export EXA_OS ?= LINUX
 
@@ -68,7 +68,6 @@ export PATH_IBM_XL_SMP ?= /sw/summit/xl/16.1.1-1/xlsmp/5.1.1/lib
 #CUDA (only set this if you build with CUDA):
 export PATH_CUDA ?= /usr/local/cuda
 # Only reset these if CUDA files are spread in the system directories:
- export PATH_CUDA_INC ?= $(PATH_CUDA)/include
  export PATH_CUDA_LIB ?= $(PATH_CUDA)/lib64
  export PATH_CUDA_BIN ?= $(PATH_CUDA)/bin
 # cuTT path (only set this if you use cuTT library):
