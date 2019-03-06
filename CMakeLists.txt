@@ -1,10 +1,9 @@
 #Needs TALSH_GPU, TALSH_GPU_ARCH, TALSH_BLAS, MPI_INCLUDE_PATH, TALSH_FINE_TIMING (Optional), nvcc in system PATH
 #No support for compiler wrappers, GCC >= 5.3 needed
 
-
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 project (TALSH C CXX Fortran)
-#set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(FindCUDA)
 find_package(MPI REQUIRED)
@@ -17,7 +16,7 @@ find_package(MPI REQUIRED)
 #fpic flags
 # DF := -WF, when using IBM compilers
 
-#set(TALSH_GPU_ARCH 60)
+set(TALSH_GPU_ARCH 60)
 
 if (TALSH_GPU)
 	set(TALSH_GPU_DEFS "CUDA_ARCH=${TALSH_GPU_ARCH}0")
@@ -25,29 +24,21 @@ else()
 	set(TALSH_GPU_DEFS NO_GPU)
 endif()
 
-#set(TALSH_CXX_FLAGS ${CMAKE_CXX_FLAGS} -O3)
-set(TALSH_CXX_FLAGS -O3)
-message( STATUS "CXX flags = " ${TALSH_CXX_FLAGS} )
-set(TALSH_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} -O3)
+set(TALSH_CXX_FLAGS ${CMAKE_CXX_FLAGS} -O3 -fPIC)
+set(TALSH_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} -O3 -fPIC)
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fpic -fpp -vec-threshold4 -qopenmp -mkl=parallel)
+  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fpp -vec-threshold4 -qopenmp -mkl=parallel)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fPIC -fopenmp)
+  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fopenmp)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -fpic -mp -Mcache_align -Mstandard -Mallocatable=03)
+  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -mp -Mcache_align -Mstandard -Mallocatable=03)
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "XL")
-  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -qpic=large -qsmp=omp)
-elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
-  set(TALSH_Fortran_FLAGS ${TALSH_FORTRAN_FLAGS} -hpic)
+  set(TALSH_Fortran_FLAGS ${TALSH_Fortran_FLAGS} -qsmp=omp)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
-  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -silent -w -Mnovect -std=c++11)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
-  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -h std=c++11)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -std=gnu11)
+  set(TALSH_CXX_FLAGS ${TALSH_CXX_FLAGS} -silent -w -Mnovect)
 endif()
 
 if (NOT TALSH_BLAS)
@@ -88,18 +79,8 @@ else()
 	set(TALSH_CXX_SOURCES ${TALSH_CXX_SOURCES} tensor_algebra_gpu_nvidia.cpp)
 endif()
 
-#set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES 
-#                                               -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Cray")
-	set(TALSH_CUDA_FLAGS  -O3 -lineinfo -w -D_FORCE_INLINES
-		-Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
-else()
-        set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES
-                -std=c++11 -Xptxas --warn-on-spills;-gencode arch=compute_${TALSH_GPU_ARCH},code=sm_${TALSH_GPU_ARCH}; -ccbin gcc)
-endif()
-
-message( STATUS "CUDA flags = " ${TALSH_CUDA_FLAGS} )
+set(TALSH_CUDA_FLAGS -O3 -lineinfo -w -D_FORCE_INLINES 
+						   -std=c++11 -Xptxas --warn-on-spills -arch=sm_${TALSH_GPU_ARCH})
 
 if(TALSH_FINE_TIMING)
   set(TALSH_CUDA_FLAGS ${TALSH_CUDA_FLAGS} -DGPU_FINE_TIMING)
